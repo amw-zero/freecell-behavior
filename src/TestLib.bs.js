@@ -6,12 +6,40 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
 
-function assertEqual($staropt$star, expected, actual, description) {
+function feedbackFor(e, a, p) {
+  return "Expected: " + (Curry._1(p, e) + ("\nActual: " + (Curry._1(p, a) + "\n")));
+}
+
+function assertEqual($staropt$star, printer, expected, actual, description) {
   var cmp = $staropt$star !== undefined ? $staropt$star : Caml_obj.caml_equal;
+  var result = Curry._2(cmp, expected, actual);
+  var feedback = result || printer === undefined ? undefined : feedbackFor(expected, actual, printer);
   return {
-          result: Curry._2(cmp, expected, actual),
-          description: description
+          result: result,
+          description: description,
+          feedback: feedback
         };
+}
+
+function assertEqual$1(expected, actual, description) {
+  return assertEqual(undefined, (function (prim) {
+                return String(prim);
+              }), expected, actual, description);
+}
+
+var Int = {
+  assertEqual: assertEqual$1
+};
+
+function printAssertion(a) {
+  console.log(a.description);
+  var match = a.feedback;
+  if (match !== undefined) {
+    console.log(match);
+    return /* () */0;
+  } else {
+    return /* () */0;
+  }
 }
 
 function _runSuite(suite) {
@@ -24,16 +52,11 @@ function _runSuite(suite) {
 
 function runSuite(suite) {
   var failingTests = _runSuite(suite);
-  var failingDescriptions = List.map((function (t) {
-          return t.description;
-        }), failingTests);
-  console.log("Failing tests:");
-  return Belt_List.forEach(failingDescriptions, (function (prim) {
-                console.log(prim);
-                return /* () */0;
-              }));
+  console.log("Failing tests:\n");
+  return Belt_List.forEach(failingTests, printAssertion);
 }
 
+exports.Int = Int;
 exports.assertEqual = assertEqual;
 exports.runSuite = runSuite;
 /* No side effect */

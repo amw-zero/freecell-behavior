@@ -1,11 +1,28 @@
 type assertion = {
   result: bool,
   description: string,
+  feedback: option(string),
 };
 
-let assertEqual = (~cmp=(==), ~expected, ~actual, description) => {
-  result: cmp(expected, actual),
-  description,
+let feedbackFor = (e, a, p) => Some("Expected: " ++ p(e) ++ "\nActual: " ++ p(a) ++ "\n");
+
+let assertEqual = (~cmp=(==), ~printer=?, ~expected, ~actual, description) => {
+  let result = cmp(expected, actual)
+  let feedback = 
+    switch ((result, printer)) {
+      | (false, Some(p)) => feedbackFor(expected, actual, p)
+      | _ => None
+    };
+
+  {
+    result,
+    description,
+    feedback,
+  };
+};
+
+module Int {
+  let assertEqual = (~expected, ~actual, description) => assertEqual(~expected, ~actual, ~printer=string_of_int, description);
 };
 
 /*
@@ -41,6 +58,14 @@ let multiTest = _ => [
  ]
  */
 
+let printAssertion = a => {
+  Js.log(a.description);
+  switch (a.feedback) {
+    | Some(f) => Js.log(f)
+    | None => ()
+  };
+};
+
 let _runSuite = suite =>
   List.map(t => t(), suite)
   |> List.flatten
@@ -48,8 +73,8 @@ let _runSuite = suite =>
 
 let runSuite = suite => {
   let failingTests = _runSuite(suite);
-  let failingDescriptions = List.map(t => t.description, failingTests);
+//  let failingDescriptions = List.map(t => t.description, failingTests);
 
- Js.log("Failing tests:");
- Belt.List.forEach(failingDescriptions, Js.log);
+ Js.log("Failing tests:\n");
+ Belt.List.forEach(failingTests, printAssertion);
 };
