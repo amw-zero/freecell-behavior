@@ -61,8 +61,14 @@ function _runSuite(suite) {
 
 function runSuite(suite) {
   var failingTests = _runSuite(suite);
-  console.log("Failing tests:\n");
-  return Belt_List.forEach(failingTests, printAssertion);
+  var match = List.length(failingTests);
+  if (match !== 0) {
+    console.log("Failing tests:\n");
+    return Belt_List.forEach(failingTests, printAssertion);
+  } else {
+    console.log("All tests passed.");
+    return /* () */0;
+  }
 }
 
 exports.Int = Int;
