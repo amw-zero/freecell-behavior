@@ -5,6 +5,7 @@ var List = require("bs-platform/lib/js/list.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
+var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
 function feedbackFor(e, a, p) {
   return "Expected: " + (Curry._1(p, e) + ("\nActual: " + (Curry._1(p, a) + "\n")));
@@ -29,6 +30,14 @@ function assertEqual$1(expected, actual, description) {
 
 var Int = {
   assertEqual: assertEqual$1
+};
+
+function assertEqual$2(expected, actual, description) {
+  return assertEqual(undefined, Pervasives.string_of_bool, expected, actual, description);
+}
+
+var Bool = {
+  assertEqual: assertEqual$2
 };
 
 function printAssertion(a) {
@@ -57,6 +66,7 @@ function runSuite(suite) {
 }
 
 exports.Int = Int;
+exports.Bool = Bool;
 exports.assertEqual = assertEqual;
 exports.runSuite = runSuite;
 /* No side effect */

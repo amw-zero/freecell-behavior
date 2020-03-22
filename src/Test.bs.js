@@ -5,7 +5,6 @@ var List = require("bs-platform/lib/js/list.js");
 var TestLib = require("./TestLib.bs.js");
 var Belt_Map = require("bs-platform/lib/js/belt_Map.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
-var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var FreeCellBehavior = require("./FreeCellBehavior.bs.js");
 
@@ -58,7 +57,7 @@ function testDealCascades(param) {
   return /* :: */[
           TestLib.Int.assertEqual(52, List.length(allCards), "52 cards should be dealt"),
           /* :: */[
-            TestLib.assertEqual(undefined, Pervasives.string_of_bool, true, Belt_List.every(cardsPerSuit, (function (cards) {
+            TestLib.Bool.assertEqual(true, Belt_List.every(cardsPerSuit, (function (cards) {
                         return Belt_List.length(cards) === 13;
                       })), "Each suit should have 13 cards"),
             /* [] */0

@@ -25,6 +25,10 @@ module Int {
   let assertEqual = (~expected, ~actual, description) => assertEqual(~expected, ~actual, ~printer=string_of_int, description);
 };
 
+module Bool {
+  let assertEqual = (~expected, ~actual, description) => assertEqual(~expected, ~actual, ~printer=string_of_bool, description);
+}
+
 /*
 
 // Tests for TestLib

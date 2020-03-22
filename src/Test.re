@@ -46,11 +46,10 @@ let testDealCascades = () => {
       ~actual=List.length(allCards),
       "52 cards should be dealt",
     ),
-    assertEqual(
+    Bool.assertEqual(
       ~expected=true,
       ~actual=
         Belt.List.every(cardsPerSuit, cards => Belt.List.length(cards) == 13),
-      ~printer=string_of_bool,
       "Each suit should have 13 cards",
     ),
   ];
