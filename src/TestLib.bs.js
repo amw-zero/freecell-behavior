@@ -14,20 +14,6 @@ function assertEqual($staropt$star, expected, actual, description) {
         };
 }
 
-function myBoolCmp(ba, bb) {
-  if (ba) {
-    if (bb) {
-      return true;
-    } else {
-      return false;
-    }
-  } else if (bb) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
 function _runSuite(suite) {
   return List.filter((function (a) {
                   return a.result !== true;
@@ -49,7 +35,5 @@ function runSuite(suite) {
 }
 
 exports.assertEqual = assertEqual;
-exports.myBoolCmp = myBoolCmp;
-exports._runSuite = _runSuite;
 exports.runSuite = runSuite;
 /* No side effect */

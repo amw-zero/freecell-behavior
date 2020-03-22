@@ -8,6 +8,9 @@ let assertEqual = (~cmp=(==), ~expected, ~actual, description) => {
   description,
 };
 
+/*
+
+// Tests for TestLib
 assertEqual(~expected=1, ~actual=2);
 
 type myBool =
@@ -21,7 +24,7 @@ let myBoolCmp = (ba, bb) =>
   | _ => false
   };
 
-/*
+
 let test = _ => [
   assertEqual(~expected=5, ~actual=4, "5 should equal 4 duh"),
 ];
