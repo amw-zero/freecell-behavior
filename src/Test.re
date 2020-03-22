@@ -44,13 +44,13 @@ let testDealCascades = () => {
     Int.assertEqual(
       ~expected=52,
       ~actual=List.length(allCards),
-      "52 cards should be dealt",
+      "52 cards are dealt",
     ),
     Bool.assertEqual(
       ~expected=true,
       ~actual=
         Belt.List.every(cardsPerSuit, cards => Belt.List.length(cards) == 13),
-      "Each suit should have 13 cards",
+      "Each suit has 13 cards",
     ),
   ];
 };

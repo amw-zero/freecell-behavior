@@ -50,11 +50,11 @@ function testDealCascades(param) {
   var cardsPerSuit = Belt_List.fromArray(Belt_Map.valuesToArray(cardsBySuit));
   var allCards = Belt_List.flatten(cardsPerSuit);
   return /* :: */[
-          TestLib.Int.assertEqual(52, List.length(allCards), "52 cards should be dealt"),
+          TestLib.Int.assertEqual(52, List.length(allCards), "52 cards are dealt"),
           /* :: */[
             TestLib.Bool.assertEqual(true, Belt_List.every(cardsPerSuit, (function (cards) {
                         return Belt_List.length(cards) === 13;
-                      })), "Each suit should have 13 cards"),
+                      })), "Each suit has 13 cards"),
             /* [] */0
           ]
         ];
