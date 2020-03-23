@@ -28,27 +28,49 @@ let emptyFreeCell = {cards: [[]]};
 module Command = {
   type cascadeBuilder = {
     cascades: cardMatrix,
-    taken: int
+    taken: int,
   };
 
   let dealCascades = freeCell => {
-    let allPairs = (e, l2) => Belt.List.map(l2, le => (e, le));
+    let generateCards = () => {
+      let allPairs = (e, l2) => Belt.List.map(l2, le => (e, le));
+      let generateCombinations = (s1, s2) =>
+        Belt.List.reduce(s1, [], (a, e) =>
+          List.concat([a, allPairs(e, s2)])
+        );
 
-    let generateCombinations = (s1, s2) =>
-      Belt.List.reduce(s1, [], (a, e) => List.concat([a, allPairs(e, s2)]));
-    let cards =
       generateCombinations(allSuits, allRanks)
       ->Belt.List.map(c => Some({suit: fst(c), rank: snd(c)}));
+    };
 
-    let cascadeLengths = [7, 7, 7, 7, 6, 6, 6, 6];
-    let cascades = Belt.List.reduce(cascadeLengths, {cascades: [], taken: 0}, (cascadeBuilder, length) => {
-      let cascade = Belt.List.drop(cards, cascadeBuilder.taken)
+    let cascadesFrom = cards => {
+      let cascadeLengths = [7, 7, 7, 7, 6, 6, 6, 6];
+
+      let nextCascade = (cards, drop, take) =>
+        Belt.List.drop(cards, drop)
         ->Belt.Option.getExn
-        ->Belt.List.take(length)
+        ->Belt.List.take(take)
         ->Belt.Option.getExn;
+      let cardsToCascade = (cascadeBuilder, length) => {
+        cascades:
+          Belt.List.add(
+            cascadeBuilder.cascades,
+            nextCascade(cards, cascadeBuilder.taken, length),
+          ),
+        taken: cascadeBuilder.taken + length,
+      };
 
-      {cascades: Belt.List.add(cascadeBuilder.cascades, cascade), taken: cascadeBuilder.taken + length};
-    }).cascades |> Belt.List.reverse;
+      Belt.List.reduce(
+        cascadeLengths,
+        {cascades: [], taken: 0},
+        cardsToCascade,
+      ).
+        cascades
+      |> Belt.List.reverse;
+    };
+
+    let cards = generateCards();
+    let cascades = cascadesFrom(cards);
 
     {cards: cascades};
   };

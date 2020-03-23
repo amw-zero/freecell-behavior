@@ -69,65 +69,74 @@ var allRanks = /* :: */[
 ];
 
 function dealCascades(freeCell) {
-  var allPairs = function (e, l2) {
-    return Belt_List.map(l2, (function (le) {
-                  return /* tuple */[
-                          e,
-                          le
-                        ];
+  var generateCards = function (param) {
+    var allPairs = function (e, l2) {
+      return Belt_List.map(l2, (function (le) {
+                    return /* tuple */[
+                            e,
+                            le
+                          ];
+                  }));
+    };
+    var generateCombinations = function (s1, s2) {
+      return Belt_List.reduce(s1, /* [] */0, (function (a, e) {
+                    return List.concat(/* :: */[
+                                a,
+                                /* :: */[
+                                  allPairs(e, s2),
+                                  /* [] */0
+                                ]
+                              ]);
+                  }));
+    };
+    return Belt_List.map(generateCombinations(allSuits, allRanks), (function (c) {
+                  return {
+                          suit: c[0],
+                          rank: c[1]
+                        };
                 }));
   };
-  var generateCombinations = function (s1, s2) {
-    return Belt_List.reduce(s1, /* [] */0, (function (a, e) {
-                  return List.concat(/* :: */[
-                              a,
-                              /* :: */[
-                                allPairs(e, s2),
-                                /* [] */0
-                              ]
-                            ]);
-                }));
-  };
-  var cards = Belt_List.map(generateCombinations(allSuits, allRanks), (function (c) {
-          return {
-                  suit: c[0],
-                  rank: c[1]
-                };
-        }));
-  var cascades = Belt_List.reverse(Belt_List.reduce(/* :: */[
-            7,
-            /* :: */[
-              7,
-              /* :: */[
-                7,
-                /* :: */[
-                  7,
-                  /* :: */[
-                    6,
+  var cascadesFrom = function (cards) {
+    var nextCascade = function (cards, drop, take) {
+      return Belt_Option.getExn(Belt_List.take(Belt_Option.getExn(Belt_List.drop(cards, drop)), take));
+    };
+    var cardsToCascade = function (cascadeBuilder, length) {
+      return {
+              cascades: Belt_List.add(cascadeBuilder.cascades, nextCascade(cards, cascadeBuilder.taken, length)),
+              taken: cascadeBuilder.taken + length | 0
+            };
+    };
+    return Belt_List.reverse(Belt_List.reduce(/* :: */[
+                    7,
                     /* :: */[
-                      6,
+                      7,
                       /* :: */[
-                        6,
+                        7,
                         /* :: */[
-                          6,
-                          /* [] */0
+                          7,
+                          /* :: */[
+                            6,
+                            /* :: */[
+                              6,
+                              /* :: */[
+                                6,
+                                /* :: */[
+                                  6,
+                                  /* [] */0
+                                ]
+                              ]
+                            ]
+                          ]
                         ]
                       ]
                     ]
-                  ]
-                ]
-              ]
-            ]
-          ], {
-            cascades: /* [] */0,
-            taken: 0
-          }, (function (cascadeBuilder, length) {
-              var cascade = Belt_Option.getExn(Belt_List.take(Belt_Option.getExn(Belt_List.drop(cards, cascadeBuilder.taken)), length));
-              return {
-                      cascades: Belt_List.add(cascadeBuilder.cascades, cascade),
-                      taken: cascadeBuilder.taken + length | 0
-                    };
-            })).cascades);
+                  ], {
+                    cascades: /* [] */0,
+                    taken: 0
+                  }, cardsToCascade).cascades);
+  };
+  var cards = generateCards(/* () */0);
+  var cascades = cascadesFrom(cards);
   return {
           cards: cascades
         };
