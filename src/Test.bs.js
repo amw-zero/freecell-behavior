@@ -2,6 +2,7 @@
 'use strict';
 
 var List = require("bs-platform/lib/js/list.js");
+var $$String = require("bs-platform/lib/js/string.js");
 var TestLib = require("./TestLib.bs.js");
 var Belt_Map = require("bs-platform/lib/js/belt_Map.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
@@ -60,13 +61,71 @@ function testDealCascades(param) {
         ];
 }
 
+function testCascadesAreCorrectStructure(param) {
+  var cards = FreeCellBehavior.Command.dealCascades(FreeCellBehavior.emptyFreeCell).cards;
+  var firstFourCascades = Belt_Option.getExn(Belt_List.take(cards, 4));
+  var lastFourCascades = Belt_Option.getExn(Belt_List.drop(cards, 4));
+  var firstFourCascadeLengths = Belt_List.map(firstFourCascades, Belt_List.length);
+  var lastFourCascadeLengths = Belt_List.map(lastFourCascades, Belt_List.length);
+  var listPrinter = function (l) {
+    return "[" + ($$String.concat(", ", Belt_List.map(l, (function (prim) {
+                        return String(prim);
+                      }))) + "]");
+  };
+  return /* :: */[
+          TestLib.assertEqual(undefined, listPrinter, /* :: */[
+                7,
+                /* :: */[
+                  7,
+                  /* :: */[
+                    7,
+                    /* :: */[
+                      7,
+                      /* [] */0
+                    ]
+                  ]
+                ]
+              ], firstFourCascadeLengths, "The first 4 cascades each have 7 cards"),
+          /* :: */[
+            TestLib.assertEqual(undefined, listPrinter, /* :: */[
+                  6,
+                  /* :: */[
+                    6,
+                    /* :: */[
+                      6,
+                      /* :: */[
+                        6,
+                        /* [] */0
+                      ]
+                    ]
+                  ]
+                ], lastFourCascadeLengths, "The last 4 cascades each have 6 cards"),
+            /* [] */0
+          ]
+        ];
+}
+
+function testMovingCardsBetweenCascades(param) {
+  return /* :: */[
+          TestLib.Int.assertEqual(1, 2, "Illegal moves should be prevented"),
+          /* [] */0
+        ];
+}
+
+var suite_001 = /* :: */[
+  testCascadesAreCorrectStructure,
+  /* [] */0
+];
+
 var suite = /* :: */[
   testDealCascades,
-  /* [] */0
+  suite_001
 ];
 
 TestLib.runSuite(suite);
 
 exports.testDealCascades = testDealCascades;
+exports.testCascadesAreCorrectStructure = testCascadesAreCorrectStructure;
+exports.testMovingCardsBetweenCascades = testMovingCardsBetweenCascades;
 exports.suite = suite;
 /*  Not a pure module */

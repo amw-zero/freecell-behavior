@@ -45,7 +45,7 @@ let testDealCascades = () => {
       ~expected=52,
       ~actual=List.length(allCards),
       "52 cards are dealt",
-    ),
+    ),    
     Bool.assertEqual(
       ~expected=true,
       ~actual=
@@ -55,6 +55,43 @@ let testDealCascades = () => {
   ];
 };
 
-let suite = [testDealCascades];
+let testCascadesAreCorrectStructure = () => {
+  let cards = Command.dealCascades(emptyFreeCell).cards;
+
+  let firstFourCascades = Belt.List.take(cards, 4) |> Belt.Option.getExn;
+  let lastFourCascades = Belt.List.drop(cards, 4) |> Belt.Option.getExn;
+
+  let firstFourCascadeLengths = Belt.List.map(firstFourCascades, Belt.List.length);
+  let lastFourCascadeLengths = Belt.List.map(lastFourCascades, Belt.List.length);
+
+  let listPrinter = l => "[" ++ (Belt.List.map(l, string_of_int) |> String.concat(", ")) ++ "]";
+
+  [
+    assertEqual(
+      ~expected=[7, 7, 7, 7],
+      ~actual=firstFourCascadeLengths,
+      ~printer=listPrinter,
+      "The first 4 cascades each have 7 cards",
+    ),
+    assertEqual(
+      ~expected=[6, 6, 6, 6],
+      ~actual=lastFourCascadeLengths,
+      ~printer=listPrinter,
+      "The last 4 cascades each have 6 cards",
+    ),
+  ]
+};
+
+let testMovingCardsBetweenCascades = () => {
+  [
+    Int.assertEqual(
+      ~expected=1,
+      ~actual=2,
+      "Illegal moves should be prevented",
+    ),
+  ]
+};
+
+let suite = [testDealCascades, testCascadesAreCorrectStructure];
 
 runSuite(suite);

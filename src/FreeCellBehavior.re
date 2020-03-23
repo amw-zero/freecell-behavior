@@ -26,6 +26,11 @@ type freeCell = {cards: cardMatrix};
 let emptyFreeCell = {cards: [[]]};
 
 module Command = {
+  type cascadeBuilder = {
+    cascades: cardMatrix,
+    taken: int
+  };
+
   let dealCascades = freeCell => {
     let allPairs = (e, l2) => Belt.List.map(l2, le => (e, le));
 
@@ -35,6 +40,16 @@ module Command = {
       generateCombinations(allSuits, allRanks)
       ->Belt.List.map(c => Some({suit: fst(c), rank: snd(c)}));
 
-    {cards: [cards]};
+    let cascadeLengths = [7, 7, 7, 7, 6, 6, 6, 6];
+    let cascades = Belt.List.reduce(cascadeLengths, {cascades: [], taken: 0}, (cascadeBuilder, length) => {
+      let cascade = Belt.List.drop(cards, cascadeBuilder.taken)
+        ->Belt.Option.getExn
+        ->Belt.List.take(length)
+        ->Belt.Option.getExn;
+
+      {cascades: Belt.List.add(cascadeBuilder.cascades, cascade), taken: cascadeBuilder.taken + length};
+    }).cascades |> Belt.List.reverse;
+
+    {cards: cascades};
   };
 };

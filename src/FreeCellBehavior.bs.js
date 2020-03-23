@@ -5,6 +5,7 @@ var List = require("bs-platform/lib/js/list.js");
 var Belt_Id = require("bs-platform/lib/js/belt_Id.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
+var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 
 var cmp = Caml_obj.caml_compare;
 
@@ -93,11 +94,42 @@ function dealCascades(freeCell) {
                   rank: c[1]
                 };
         }));
+  var cascades = Belt_List.reverse(Belt_List.reduce(/* :: */[
+            7,
+            /* :: */[
+              7,
+              /* :: */[
+                7,
+                /* :: */[
+                  7,
+                  /* :: */[
+                    6,
+                    /* :: */[
+                      6,
+                      /* :: */[
+                        6,
+                        /* :: */[
+                          6,
+                          /* [] */0
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ], {
+            cascades: /* [] */0,
+            taken: 0
+          }, (function (cascadeBuilder, length) {
+              var cascade = Belt_Option.getExn(Belt_List.take(Belt_Option.getExn(Belt_List.drop(cards, cascadeBuilder.taken)), length));
+              return {
+                      cascades: Belt_List.add(cascadeBuilder.cascades, cascade),
+                      taken: cascadeBuilder.taken + length | 0
+                    };
+            })).cascades);
   return {
-          cards: /* :: */[
-            cards,
-            /* [] */0
-          ]
+          cards: cascades
         };
 }
 
