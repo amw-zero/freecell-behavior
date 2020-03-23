@@ -22,7 +22,7 @@ let testDealCascades = () => {
     };
 
   let groupCardsBySuit = cards =>
-    Belt.List.reduce(cards, suitMap(), (cardsBySuit, cardList) =>
+    Belt.Array.reduce(cards, suitMap(), (cardsBySuit, cardList) =>
       Belt.Map.merge(
         groupCardList(
           List.filter(c => Belt.Option.isSome(c), cardList)
@@ -55,11 +55,11 @@ let testDealCascades = () => {
   ];
 };
 
-let testCascadesAreCorrectStructure = () => {
+let testDealtCascadesAreCorrectStructure = () => {
   let cards = Command.dealCascades(emptyFreeCell).cards;
 
-  let firstFourCascades = Belt.List.take(cards, 4) |> Belt.Option.getExn;
-  let lastFourCascades = Belt.List.drop(cards, 4) |> Belt.Option.getExn;
+  let firstFourCascades = Belt.List.fromArray(cards)->Belt.List.take(4) |> Belt.Option.getExn;
+  let lastFourCascades = Belt.List.fromArray(cards)->Belt.List.drop(4) |> Belt.Option.getExn;
 
   let firstFourCascadeLengths =
     Belt.List.map(firstFourCascades, Belt.List.length);
@@ -68,6 +68,7 @@ let testCascadesAreCorrectStructure = () => {
 
   let listPrinter = l =>
     "[" ++ (Belt.List.map(l, string_of_int) |> String.concat(", ")) ++ "]";
+
 
   [
     assertEqual(
@@ -86,15 +87,42 @@ let testCascadesAreCorrectStructure = () => {
 };
 
 let testMovingCardsBetweenCascades = () => {
+  let eightOfHearts = Some({suit: Hearts, rank: 8});
+  let nineOfClubs = Some({suit: Clubs, rank: 9});
+  let cascadeOne = [eightOfHearts];
+  let cascadeTwo = [nineOfClubs];
+  let freeCell = {
+    cards: [|cascadeOne, cascadeTwo|]
+  };
+
+  let freeCell = Command.moveCardBetweenCascades(~sourceIndex=0, ~destinationIndex=1, freeCell);
+
+  let listPrinter = l => "[" ++ (Belt.List.map(l, string_of_card) |> String.concat(", ")) ++ "]";
   [
-    Int.assertEqual(
-      ~expected=1,
-      ~actual=2,
-      "Illegal moves should be prevented",
+    assertEqual(
+      ~expected=[],
+      ~actual=freeCell.cards[0],
+      ~printer=listPrinter,
+      "The card is removed from the source cascade",
+    ),
+    assertEqual(
+      ~expected=[eightOfHearts, nineOfClubs],
+      ~actual=freeCell.cards[1],
+      ~printer=listPrinter,
+      "The card is moved to the destination cascade",
     ),
   ];
 };
 
-let suite = [testDealCascades, testCascadesAreCorrectStructure];
+let gameSetupCases = [
+  testDealCascades,
+  testDealtCascadesAreCorrectStructure,
+];
+
+let gameMoveCases = [
+  testMovingCardsBetweenCascades
+];
+
+let suite = Belt.List.concat(gameSetupCases, gameMoveCases);
 
 runSuite(suite);

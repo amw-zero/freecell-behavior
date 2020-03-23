@@ -5,7 +5,9 @@ var List = require("bs-platform/lib/js/list.js");
 var Belt_Id = require("bs-platform/lib/js/belt_Id.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
+var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 var cmp = Caml_obj.caml_compare;
 
@@ -68,6 +70,33 @@ var allRanks = /* :: */[
   ]
 ];
 
+function string_of_suit(suit) {
+  switch (suit) {
+    case /* Clubs */0 :
+        return "c";
+    case /* Diamonds */1 :
+        return "d";
+    case /* Hearts */2 :
+        return "h";
+    case /* Spades */3 :
+        return "s";
+    
+  }
+}
+
+function string_of_card(card) {
+  if (card !== undefined) {
+    var c = card;
+    return String(c.rank) + string_of_suit(c.suit);
+  } else {
+    return "empty";
+  }
+}
+
+var emptyFreeCell = {
+  cards: /* array */[/* [] */0]
+};
+
 function dealCascades(freeCell) {
   var generateCards = function (param) {
     var allPairs = function (e, l2) {
@@ -106,34 +135,34 @@ function dealCascades(freeCell) {
               taken: cascadeBuilder.taken + length | 0
             };
     };
-    return Belt_List.reverse(Belt_List.reduce(/* :: */[
-                    7,
-                    /* :: */[
-                      7,
-                      /* :: */[
+    return Belt_List.toArray(Belt_List.reverse(Belt_List.reduce(/* :: */[
                         7,
                         /* :: */[
                           7,
                           /* :: */[
-                            6,
+                            7,
                             /* :: */[
-                              6,
+                              7,
                               /* :: */[
                                 6,
                                 /* :: */[
                                   6,
-                                  /* [] */0
+                                  /* :: */[
+                                    6,
+                                    /* :: */[
+                                      6,
+                                      /* [] */0
+                                    ]
+                                  ]
                                 ]
                               ]
                             ]
                           ]
                         ]
-                      ]
-                    ]
-                  ], {
-                    cascades: /* [] */0,
-                    taken: 0
-                  }, cardsToCascade).cascades);
+                      ], {
+                        cascades: /* [] */0,
+                        taken: 0
+                      }, cardsToCascade).cascades));
   };
   var cards = generateCards(/* () */0);
   var cascades = cascadesFrom(cards);
@@ -142,20 +171,27 @@ function dealCascades(freeCell) {
         };
 }
 
-var Command = {
-  dealCascades: dealCascades
-};
+function moveCardBetweenCascades(sourceIndex, destinationIndex, freeCell) {
+  var source = Caml_array.caml_array_get(freeCell.cards, sourceIndex);
+  var dest = Caml_array.caml_array_get(freeCell.cards, destinationIndex);
+  var card = Belt_List.head(Belt_List.reverse(Caml_array.caml_array_get(freeCell.cards, sourceIndex)));
+  var dest$1 = card !== undefined ? Belt_List.add(dest, Caml_option.valFromOption(card)) : dest;
+  var source$1 = Belt_Option.getExn(Belt_List.drop(source, 1));
+  Caml_array.caml_array_set(freeCell.cards, sourceIndex, source$1);
+  Caml_array.caml_array_set(freeCell.cards, destinationIndex, dest$1);
+  return freeCell;
+}
 
-var emptyFreeCell = {
-  cards: /* :: */[
-    /* [] */0,
-    /* [] */0
-  ]
+var Command = {
+  dealCascades: dealCascades,
+  moveCardBetweenCascades: moveCardBetweenCascades
 };
 
 exports.SuitComparable = SuitComparable;
 exports.allSuits = allSuits;
 exports.allRanks = allRanks;
+exports.string_of_suit = string_of_suit;
+exports.string_of_card = string_of_card;
 exports.emptyFreeCell = emptyFreeCell;
 exports.Command = Command;
 /* SuitComparable Not a pure module */

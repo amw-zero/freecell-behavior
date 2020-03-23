@@ -18,16 +18,30 @@ type card = {
   rank: int,
 };
 
+let string_of_suit = suit =>
+  switch (suit) {
+  | Clubs => "c"
+  | Diamonds => "d"
+  | Hearts => "h"
+  | Spades => "s"
+  };
+
+let string_of_card = card =>
+  switch (card) {
+    | Some(c) => string_of_int(c.rank) ++ string_of_suit(c.suit)
+    | None => "empty"
+  };
+
 type cardList = list(option(card));
-type cardMatrix = list(cardList);
+type cardMatrix = array(cardList);
 
 type freeCell = {cards: cardMatrix};
 
-let emptyFreeCell = {cards: [[]]};
+let emptyFreeCell = {cards: [|[]|]};
 
 module Command = {
   type cascadeBuilder = {
-    cascades: cardMatrix,
+    cascades: list(list(option(card))),
     taken: int,
   };
 
@@ -66,12 +80,32 @@ module Command = {
         cardsToCascade,
       ).
         cascades
-      |> Belt.List.reverse;
+      |> Belt.List.reverse |> Belt.List.toArray;
     };
 
     let cards = generateCards();
     let cascades = cascadesFrom(cards);
 
     {cards: cascades};
+  };
+
+  let moveCardBetweenCascades = (~sourceIndex, ~destinationIndex, freeCell) => {
+    let source = freeCell.cards[sourceIndex];
+    let dest = freeCell.cards[destinationIndex];
+
+    let card = Belt.List.reverse(freeCell.cards[sourceIndex]) 
+      ->Belt.List.head;
+
+    let dest = switch (card) {
+      | Some(c) => Belt.List.add(dest, c)
+      | None => dest
+    };
+
+    let source = Belt.List.drop(source, 1) |> Belt.Option.getExn;
+
+    freeCell.cards[sourceIndex] = source;
+    freeCell.cards[destinationIndex] = dest;
+
+    freeCell;
   };
 };
