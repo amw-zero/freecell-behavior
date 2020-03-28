@@ -52,23 +52,29 @@ function printAssertion(a) {
 }
 
 function _runSuite(suite) {
-  return List.filter((function (a) {
+  var assertions = Belt_List.flatten(Belt_List.map(suite, (function (t) {
+              return Curry._1(t, /* () */0);
+            })));
+  return {
+          failingTests: Belt_List.keep(assertions, (function (a) {
                   return a.result !== true;
-                }))(List.flatten(List.map((function (t) {
-                        return Curry._1(t, /* () */0);
-                      }), suite)));
+                })),
+          assertionCount: Belt_List.length(assertions)
+        };
 }
 
 function runSuite(suite) {
-  var failingTests = _runSuite(suite);
-  var match = List.length(failingTests);
-  if (match !== 0) {
+  var match = _runSuite(suite);
+  var failingTests = match.failingTests;
+  var match$1 = List.length(failingTests);
+  if (match$1 !== 0) {
     console.log("Failing tests:\n");
-    return Belt_List.forEach(failingTests, printAssertion);
+    Belt_List.forEach(failingTests, printAssertion);
   } else {
     console.log("All tests passed.");
-    return /* () */0;
   }
+  console.log("Ran " + (String(match.assertionCount) + " assertions."));
+  return /* () */0;
 }
 
 exports.Int = Int;

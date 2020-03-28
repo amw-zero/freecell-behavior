@@ -192,7 +192,6 @@ function testMovingCardsBetweenCascades(param) {
     ];
     var allCards = Belt_List.concat(redCards, blackCards);
     var allPairs = Combinatorics.permutations(allCards, 2);
-    console.log("Running " + (String(Belt_List.length(allPairs)) + " cases"));
     return Belt_List.map(allPairs, (function (p) {
                   if (p) {
                     var match = p[1];

@@ -149,7 +149,7 @@ let testMovingCardsBetweenCascades = () => {
     //   },
     // );
 
-    Js.log("Running " ++ (Belt.List.length(allPairs) |> string_of_int) ++ " cases");
+//    Js.log("Running " ++ (Belt.List.length(allPairs) |> string_of_int) ++ " cases");
 
     Belt.List.map(
       allPairs,
@@ -185,7 +185,7 @@ let testMovingCardsBetweenCascades = () => {
           ~printer=b => "src: " ++ Formatting.string_of_optional_card_list(sourceCascade)
             ++ " | dst: " ++ Formatting.string_of_optional_card_list(destCascade),
           "Illegal moves are not permitted"
-        )
+        );
       }
     );
 

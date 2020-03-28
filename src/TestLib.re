@@ -61,6 +61,11 @@ module Bool = {
   ]
   */
 
+type suiteDiagnostic = {
+  failingTests: list(assertion),
+  assertionCount: int,
+};
+
 let printAssertion = a => {
   Js.log(a.description);
   switch (a.feedback) {
@@ -69,18 +74,26 @@ let printAssertion = a => {
   };
 };
 
-let _runSuite = suite =>
-  List.map(t => t(), suite)
-  |> List.flatten
-  |> List.filter(a => a.result != true);
+let _runSuite = suite => {
+  let assertions = Belt.List.map(suite, t => t())
+    ->Belt.List.flatten;
+
+  {
+    assertionCount: Belt.List.length(assertions),
+    failingTests: assertions->Belt.List.keep(a => a.result != true)
+  }
+};
 
 let runSuite = suite => {
-  let failingTests = _runSuite(suite);
-  //  let failingDescriptions = List.map(t => t.description, failingTests);
+  let {failingTests, assertionCount} = _runSuite(suite);
   switch (List.length(failingTests)) {
   | 0 => Js.log("All tests passed.")
   | _ =>
     Js.log("Failing tests:\n");
     Belt.List.forEach(failingTests, printAssertion);
   };
+
+  Js.log("Ran " ++ string_of_int(assertionCount) ++ " assertions.");
 };
+
+
