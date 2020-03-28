@@ -4,7 +4,9 @@
   "scripts": {
     "build": "bsb -make-world",
     "start": "bsb -make-world -w",
-    "clean": "bsb -clean-world"
+    "clean": "bsb -clean-world",
+    "test": "node src/Test.bs.js",
+    "format": "bsrefmt src/*.re --in-place"
   },
   "keywords": [
     "BuckleScript"

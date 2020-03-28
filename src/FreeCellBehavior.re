@@ -18,6 +18,18 @@ type card = {
   rank: int,
 };
 
+type color =
+  | Red
+  | Black;
+
+let cardColor = card =>
+  switch (card.suit) {
+  | Diamonds
+  | Hearts => Red
+  | Clubs
+  | Spades => Black
+  };
+
 let string_of_suit = suit =>
   switch (suit) {
   | Clubs => "c"
@@ -28,8 +40,8 @@ let string_of_suit = suit =>
 
 let string_of_card = card =>
   switch (card) {
-    | Some(c) => string_of_int(c.rank) ++ string_of_suit(c.suit)
-    | None => "empty"
+  | Some(c) => string_of_int(c.rank) ++ string_of_suit(c.suit)
+  | None => "empty"
   };
 
 type cardList = list(option(card));
@@ -80,7 +92,8 @@ module Command = {
         cardsToCascade,
       ).
         cascades
-      |> Belt.List.reverse |> Belt.List.toArray;
+      |> Belt.List.reverse
+      |> Belt.List.toArray;
     };
 
     let cards = generateCards();
@@ -90,16 +103,19 @@ module Command = {
   };
 
   let moveCardBetweenCascades = (~sourceIndex, ~destinationIndex, freeCell) => {
+    let validMove = (~src, ~dest) =>
+      cardColor(src) != cardColor(dest) && dest.rank == src.rank - 1;
+
     let source = freeCell.cards[sourceIndex];
     let dest = freeCell.cards[destinationIndex];
 
-    let card = Belt.List.reverse(freeCell.cards[sourceIndex]) 
-      ->Belt.List.head;
+    let card = Belt.List.reverse(freeCell.cards[sourceIndex])->Belt.List.head;
 
-    let dest = switch (card) {
+    let dest =
+      switch (card) {
       | Some(c) => Belt.List.add(dest, c)
       | None => dest
-    };
+      };
 
     let source = Belt.List.drop(source, 1) |> Belt.Option.getExn;
 

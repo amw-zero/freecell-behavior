@@ -70,6 +70,15 @@ var allRanks = /* :: */[
   ]
 ];
 
+function cardColor(card) {
+  var match = card.suit;
+  if (match === 2 || match === 1) {
+    return /* Red */0;
+  } else {
+    return /* Black */1;
+  }
+}
+
 function string_of_suit(suit) {
   switch (suit) {
     case /* Clubs */0 :
@@ -190,6 +199,7 @@ var Command = {
 exports.SuitComparable = SuitComparable;
 exports.allSuits = allSuits;
 exports.allRanks = allRanks;
+exports.cardColor = cardColor;
 exports.string_of_suit = string_of_suit;
 exports.string_of_card = string_of_card;
 exports.emptyFreeCell = emptyFreeCell;
