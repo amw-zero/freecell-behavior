@@ -14,17 +14,10 @@ function string_of_tuple(t) {
 }
 
 function string_of_card_list(cards) {
-  return $$String.concat(", ", Belt_List.map(cards, (function (c) {
-                    return FreeCellBehavior.string_of_card(c);
-                  })));
-}
-
-function string_of_optional_card_list(cards) {
   return $$String.concat(", ", Belt_List.map(cards, FreeCellBehavior.string_of_card));
 }
 
 exports.string_of_list = string_of_list;
 exports.string_of_tuple = string_of_tuple;
 exports.string_of_card_list = string_of_card_list;
-exports.string_of_optional_card_list = string_of_optional_card_list;
 /* FreeCellBehavior Not a pure module */

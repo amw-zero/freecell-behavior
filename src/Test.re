@@ -24,10 +24,7 @@ let testDealCascades = () => {
   let groupCardsBySuit = cards =>
     Belt.Array.reduce(cards, suitMap(), (cardsBySuit, cardList) =>
       Belt.Map.merge(
-        groupCardList(
-          List.filter(c => Belt.Option.isSome(c), cardList)
-          |> List.map(Belt.Option.getExn),
-        ),
+        groupCardList(cardList),
         cardsBySuit,
         mergeCardsBySuit,
       )
@@ -88,8 +85,8 @@ let testDealtCascadesAreCorrectStructure = () => {
 };
 
 let legalMoves = () => {
-  let eightOfHearts = Some({suit: Hearts, rank: 8});
-  let nineOfClubs = Some({suit: Clubs, rank: 9});
+  let eightOfHearts = {suit: Hearts, rank: 8};
+  let nineOfClubs = {suit: Clubs, rank: 9};
   let cascadeOne = [eightOfHearts];
   let cascadeTwo = [nineOfClubs];
   let freeCell = {cards: [|cascadeOne, cascadeTwo|]};
@@ -137,8 +134,8 @@ let testMovingCardsBetweenCascades = () => {
     let testPair = p => {
       let [src, dst] = p;
 
-      let sourceCascade = [Some(src)];
-      let destCascade = [Some(dst)];
+      let sourceCascade = [src];
+      let destCascade = [dst];
 
       let {cards} =
         Command.moveCardBetweenCascades(
@@ -156,9 +153,9 @@ let testMovingCardsBetweenCascades = () => {
 
       let check =
         if (legalMove) {
-          sourceCascade == [] && destCascade == [Some(src), Some(dst)];
+          sourceCascade == [] && destCascade == [src, dst];
         } else {
-          sourceCascade == [Some(src)] && destCascade == [Some(dst)];
+          sourceCascade == [src] && destCascade == [dst];
         };
 
       assertEqual(
@@ -167,9 +164,9 @@ let testMovingCardsBetweenCascades = () => {
         ~printer=
           _ =>
             "src: "
-            ++ Formatting.string_of_optional_card_list(sourceCascade)
+            ++ Formatting.string_of_card_list(sourceCascade)
             ++ " | dst: "
-            ++ Formatting.string_of_optional_card_list(destCascade),
+            ++ Formatting.string_of_card_list(destCascade),
         "Only legal moves are performed",
       );
     };

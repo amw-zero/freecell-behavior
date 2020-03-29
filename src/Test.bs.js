@@ -49,7 +49,7 @@ function testDealCascades(param) {
   };
   var groupCardsBySuit = function (cards) {
     return Belt_Array.reduce(cards, suitMap(/* () */0), (function (cardsBySuit, cardList) {
-                  return Belt_Map.merge(groupCardList(List.map(Belt_Option.getExn, List.filter(Belt_Option.isSome)(cardList))), cardsBySuit, mergeCardsBySuit);
+                  return Belt_Map.merge(groupCardList(cardList), cardsBySuit, mergeCardsBySuit);
                 }));
   };
   var freeCell = FreeCellBehavior.Command.dealCascades(FreeCellBehavior.emptyFreeCell);
@@ -199,14 +199,12 @@ function testMovingCardsBetweenCascades(param) {
         if (match && !match[1]) {
           var dst = match[0];
           var src = p[0];
-          var sourceCascade_000 = src;
           var sourceCascade = /* :: */[
-            sourceCascade_000,
+            src,
             /* [] */0
           ];
-          var destCascade_000 = dst;
           var destCascade = /* :: */[
-            destCascade_000,
+            dst,
             /* [] */0
           ];
           var match$1 = FreeCellBehavior.Command.moveCardBetweenCascades(0, 1, {
@@ -235,7 +233,7 @@ function testMovingCardsBetweenCascades(param) {
                   /* [] */0
                 ]);
           return TestLib.assertEqual(undefined, (function (param) {
-                        return "src: " + (Formatting.string_of_optional_card_list(sourceCascade$1) + (" | dst: " + Formatting.string_of_optional_card_list(destCascade$1)));
+                        return "src: " + (Formatting.string_of_card_list(sourceCascade$1) + (" | dst: " + Formatting.string_of_card_list(destCascade$1)));
                       }), true, check, "Only legal moves are performed");
         }
         
@@ -244,7 +242,7 @@ function testMovingCardsBetweenCascades(param) {
             Caml_builtin_exceptions.match_failure,
             /* tuple */[
               "Test.re",
-              138,
+              135,
               10
             ]
           ];

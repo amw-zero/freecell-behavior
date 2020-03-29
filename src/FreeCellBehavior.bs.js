@@ -93,12 +93,7 @@ function string_of_suit(suit) {
 }
 
 function string_of_card(card) {
-  if (card !== undefined) {
-    var c = card;
-    return String(c.rank) + string_of_suit(c.suit);
-  } else {
-    return "empty";
-  }
+  return String(card.rank) + string_of_suit(card.suit);
 }
 
 var emptyFreeCell = {
@@ -198,7 +193,7 @@ function moveCardBetweenCascades(sourceIndex, destinationIndex, freeCell) {
     }
   };
   var bottomCard = function (index) {
-    return Belt_Option.getExn(Belt_List.head(Belt_List.reverse(Caml_array.caml_array_get(freeCell.cards, index))));
+    return Belt_List.head(Belt_List.reverse(Caml_array.caml_array_get(freeCell.cards, index)));
   };
   var sourceCard = bottomCard(sourceIndex);
   var destCard = bottomCard(destinationIndex);

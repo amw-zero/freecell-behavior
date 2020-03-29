@@ -39,12 +39,9 @@ let string_of_suit = suit =>
   };
 
 let string_of_card = card =>
-  switch (card) {
-  | Some(c) => string_of_int(c.rank) ++ string_of_suit(c.suit)
-  | None => "empty"
-  };
+  string_of_int(card.rank) ++ string_of_suit(card.suit);
 
-type cardList = list(option(card));
+type cardList = list(card);
 type cardMatrix = array(cardList);
 
 type freeCell = {cards: cardMatrix};
@@ -53,7 +50,7 @@ let emptyFreeCell = {cards: [|[]|]};
 
 module Command = {
   type cascadeBuilder = {
-    cascades: list(list(option(card))),
+    cascades: list(list(card)),
     taken: int,
   };
 
@@ -66,7 +63,7 @@ module Command = {
         );
 
       generateCombinations(allSuits, allRanks)
-      ->Belt.List.map(c => Some({suit: fst(c), rank: snd(c)}));
+      ->Belt.List.map(c => {suit: fst(c), rank: snd(c)});
     };
 
     let cascadesFrom = cards => {
@@ -118,19 +115,17 @@ module Command = {
 
     let bottomCard = (~atIndex as index) =>
       Belt.List.reverse(freeCell.cards[index])
-      ->Belt.List.head
-      ->Belt.Option.getExn;
+      ->Belt.List.head;
 
     let sourceCard = bottomCard(~atIndex=sourceIndex);
     let destCard = bottomCard(~atIndex=destinationIndex);
-
 
     switch (validateMove(~src=sourceCard, ~dest=destCard)) {
     | Valid(s) =>
       let sourceCascade = freeCell.cards[sourceIndex];
       let destinationCascade = freeCell.cards[destinationIndex];
 
-      let newDest = Belt.List.add(destinationCascade, Some(s));
+      let newDest = Belt.List.add(destinationCascade, s);
       let newSource = Belt.List.drop(sourceCascade, 1) |> Belt.Option.getExn;
 
       freeCell.cards[sourceIndex] = newSource;
