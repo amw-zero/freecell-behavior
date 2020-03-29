@@ -75,13 +75,12 @@ let printAssertion = a => {
 };
 
 let _runSuite = suite => {
-  let assertions = Belt.List.map(suite, t => t())
-    ->Belt.List.flatten;
+  let assertions = Belt.List.map(suite, t => t())->Belt.List.flatten;
 
   {
     assertionCount: Belt.List.length(assertions),
-    failingTests: assertions->Belt.List.keep(a => a.result != true)
-  }
+    failingTests: assertions->Belt.List.keep(a => a.result != true),
+  };
 };
 
 let runSuite = suite => {
@@ -95,5 +94,3 @@ let runSuite = suite => {
 
   Js.log("Ran " ++ string_of_int(assertionCount) ++ " assertions.");
 };
-
-

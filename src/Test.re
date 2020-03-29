@@ -87,40 +87,40 @@ let testDealtCascadesAreCorrectStructure = () => {
   ];
 };
 
+let legalMoves = () => {
+  let eightOfHearts = Some({suit: Hearts, rank: 8});
+  let nineOfClubs = Some({suit: Clubs, rank: 9});
+  let cascadeOne = [eightOfHearts];
+  let cascadeTwo = [nineOfClubs];
+  let freeCell = {cards: [|cascadeOne, cascadeTwo|]};
+
+  let freeCell =
+    Command.moveCardBetweenCascades(
+      ~sourceIndex=0,
+      ~destinationIndex=1,
+      freeCell,
+    );
+
+  let listPrinter = l =>
+    "[" ++ (Belt.List.map(l, string_of_card) |> String.concat(", ")) ++ "]";
+
+  [
+    assertEqual(
+      ~expected=[],
+      ~actual=freeCell.cards[0],
+      ~printer=listPrinter,
+      "The card is removed from the source cascade",
+    ),
+    assertEqual(
+      ~expected=[eightOfHearts, nineOfClubs],
+      ~actual=freeCell.cards[1],
+      ~printer=listPrinter,
+      "The card is moved to the destination cascade",
+    ),
+  ];
+};
+
 let testMovingCardsBetweenCascades = () => {
-  let legalMoves = () => {
-    let eightOfHearts = Some({suit: Hearts, rank: 8});
-    let nineOfClubs = Some({suit: Clubs, rank: 9});
-    let cascadeOne = [eightOfHearts];
-    let cascadeTwo = [nineOfClubs];
-    let freeCell = {cards: [|cascadeOne, cascadeTwo|]};
-
-    let freeCell =
-      Command.moveCardBetweenCascades(
-        ~sourceIndex=0,
-        ~destinationIndex=1,
-        freeCell,
-      );
-
-    let listPrinter = l =>
-      "[" ++ (Belt.List.map(l, string_of_card) |> String.concat(", ")) ++ "]";
-
-    [
-      assertEqual(
-        ~expected=[],
-        ~actual=freeCell.cards[0],
-        ~printer=listPrinter,
-        "The card is removed from the source cascade",
-      ),
-      assertEqual(
-        ~expected=[eightOfHearts, nineOfClubs],
-        ~actual=freeCell.cards[1],
-        ~printer=listPrinter,
-        "The card is moved to the destination cascade",
-      ),
-    ];
-  };
-
   let illegalMovesComb = () => {
     let aceOfHearts = {suit: Hearts, rank: 1};
     let threeOfHearts = {suit: Hearts, rank: 3};
@@ -128,74 +128,53 @@ let testMovingCardsBetweenCascades = () => {
     let fourOfClubs = {suit: Clubs, rank: 4};
     let jackOfSpades = {suit: Spades, rank: 13};
 
-    let redCards = [
-      aceOfHearts,
-      threeOfHearts,
-    ];
-    let blackCards = [
-      twoOfClubs,
-      fourOfClubs,
-      jackOfSpades,
-    ];
+    let redCards = [aceOfHearts, threeOfHearts];
+    let blackCards = [twoOfClubs, fourOfClubs, jackOfSpades];
 
     let allCards = Belt.List.concat(redCards, blackCards);
     let allPairs = Combinatorics.permutations(allCards, 2);
 
-    // Belt.List.forEach(
-    //   allPairs,
-    //   cards => {
-    //     Js.log(Formatting.string_of_card_list(cards));
-    //     Js.log("-----\n");
-    //   },
-    // );
+    let testPair = p => {
+      let [src, dst] = p;
 
-//    Js.log("Running " ++ (Belt.List.length(allPairs) |> string_of_int) ++ " cases");
+      let sourceCascade = [Some(src)];
+      let destCascade = [Some(dst)];
 
-    Belt.List.map(
-      allPairs,
-      p => {
-        let [src, dst] = p;
-
-        let sourceCascade = [Some(src)];
-        let destCascade = [Some(dst)];
-
-        let {cards} = Command.moveCardBetweenCascades(
-          ~sourceIndex=0, 
+      let {cards} =
+        Command.moveCardBetweenCascades(
+          ~sourceIndex=0,
           ~destinationIndex=1,
-          {cards:[|sourceCascade, destCascade|]}
+          {cards: [|sourceCascade, destCascade|]},
         );
 
-        let sourceCascade = cards[0];
-        let destCascade = cards[1];
+      let sourceCascade = cards[0];
+      let destCascade = cards[1]; 
 
-        let areCardsOppositeColors = cardColor(src) != cardColor(dst);
-        let areRanksInOrder = dst.rank == src.rank + 1;
-        let legalMove = areCardsOppositeColors && areRanksInOrder;
+      let areCardsOppositeColors = cardColor(src) != cardColor(dst);
+      let areRanksInOrder = dst.rank == src.rank + 1;
+      let legalMove = areCardsOppositeColors && areRanksInOrder;
 
-        let check = 
-          if (legalMove) {
-            sourceCascade == [None] && destCascade == [Some(dst), Some(src)];
-          } else {
-            sourceCascade == [Some(src)] && destCascade == [Some(dst)];
-          };
+      let check =
+        if (legalMove) {
+          sourceCascade == [] && destCascade == [Some(src), Some(dst)];
+        } else {
+          sourceCascade == [Some(src)] && destCascade == [Some(dst)];
+        };
 
-        assertEqual(
-          ~expected=true,
-          ~actual=check,
-          ~printer=b => "src: " ++ Formatting.string_of_optional_card_list(sourceCascade)
-            ++ " | dst: " ++ Formatting.string_of_optional_card_list(destCascade),
-          "Illegal moves are not permitted"
-        );
-      }
-    );
+      assertEqual(
+        ~expected=true,
+        ~actual=check,
+        ~printer=
+          _ =>
+            "src: "
+            ++ Formatting.string_of_optional_card_list(sourceCascade)
+            ++ " | dst: "
+            ++ Formatting.string_of_optional_card_list(destCascade),
+        "Only legal moves are performed",
+      );
+    };
 
-    // [
-    //   Int.assertEqual(
-    //     ~expected=1,
-    //     ~actual=2,
-    //     "Cards of the same suit cannot be moved between cascades",
-    //   ),
-    // ];
+    Belt.List.map(allPairs, testPair);
   };
 
   Belt.List.concat(legalMoves(), illegalMovesComb());

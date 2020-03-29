@@ -111,48 +111,49 @@ function testDealtCascadesAreCorrectStructure(param) {
         ];
 }
 
-function testMovingCardsBetweenCascades(param) {
-  var legalMoves = function (param) {
-    var eightOfHearts = {
-      suit: /* Hearts */2,
-      rank: 8
-    };
-    var nineOfClubs = {
-      suit: /* Clubs */0,
-      rank: 9
-    };
-    var cascadeOne = /* :: */[
-      eightOfHearts,
-      /* [] */0
-    ];
-    var cascadeTwo = /* :: */[
-      nineOfClubs,
-      /* [] */0
-    ];
-    var freeCell = {
-      cards: /* array */[
-        cascadeOne,
-        cascadeTwo
-      ]
-    };
-    var freeCell$1 = FreeCellBehavior.Command.moveCardBetweenCascades(0, 1, freeCell);
-    var listPrinter = function (l) {
-      return "[" + ($$String.concat(", ", Belt_List.map(l, FreeCellBehavior.string_of_card)) + "]");
-    };
-    return /* :: */[
-            TestLib.assertEqual(undefined, listPrinter, /* [] */0, Caml_array.caml_array_get(freeCell$1.cards, 0), "The card is removed from the source cascade"),
-            /* :: */[
-              TestLib.assertEqual(undefined, listPrinter, /* :: */[
-                    eightOfHearts,
-                    /* :: */[
-                      nineOfClubs,
-                      /* [] */0
-                    ]
-                  ], Caml_array.caml_array_get(freeCell$1.cards, 1), "The card is moved to the destination cascade"),
-              /* [] */0
-            ]
-          ];
+function legalMoves(param) {
+  var eightOfHearts = {
+    suit: /* Hearts */2,
+    rank: 8
   };
+  var nineOfClubs = {
+    suit: /* Clubs */0,
+    rank: 9
+  };
+  var cascadeOne = /* :: */[
+    eightOfHearts,
+    /* [] */0
+  ];
+  var cascadeTwo = /* :: */[
+    nineOfClubs,
+    /* [] */0
+  ];
+  var freeCell = {
+    cards: /* array */[
+      cascadeOne,
+      cascadeTwo
+    ]
+  };
+  var freeCell$1 = FreeCellBehavior.Command.moveCardBetweenCascades(0, 1, freeCell);
+  var listPrinter = function (l) {
+    return "[" + ($$String.concat(", ", Belt_List.map(l, FreeCellBehavior.string_of_card)) + "]");
+  };
+  return /* :: */[
+          TestLib.assertEqual(undefined, listPrinter, /* [] */0, Caml_array.caml_array_get(freeCell$1.cards, 0), "The card is removed from the source cascade"),
+          /* :: */[
+            TestLib.assertEqual(undefined, listPrinter, /* :: */[
+                  eightOfHearts,
+                  /* :: */[
+                    nineOfClubs,
+                    /* [] */0
+                  ]
+                ], Caml_array.caml_array_get(freeCell$1.cards, 1), "The card is moved to the destination cascade"),
+            /* [] */0
+          ]
+        ];
+}
+
+function testMovingCardsBetweenCascades(param) {
   var illegalMovesComb = function (param) {
     var redCards_000 = {
       suit: /* Hearts */2,
@@ -192,65 +193,63 @@ function testMovingCardsBetweenCascades(param) {
     ];
     var allCards = Belt_List.concat(redCards, blackCards);
     var allPairs = Combinatorics.permutations(allCards, 2);
-    return Belt_List.map(allPairs, (function (p) {
-                  if (p) {
-                    var match = p[1];
-                    if (match && !match[1]) {
-                      var dst = match[0];
-                      var src = p[0];
-                      var sourceCascade_000 = src;
-                      var sourceCascade = /* :: */[
-                        sourceCascade_000,
-                        /* [] */0
-                      ];
-                      var destCascade_000 = dst;
-                      var destCascade = /* :: */[
-                        destCascade_000,
-                        /* [] */0
-                      ];
-                      var match$1 = FreeCellBehavior.Command.moveCardBetweenCascades(0, 1, {
-                            cards: /* array */[
-                              sourceCascade,
-                              destCascade
-                            ]
-                          });
-                      var cards = match$1.cards;
-                      var sourceCascade$1 = Caml_array.caml_array_get(cards, 0);
-                      var destCascade$1 = Caml_array.caml_array_get(cards, 1);
-                      var areCardsOppositeColors = FreeCellBehavior.cardColor(src) !== FreeCellBehavior.cardColor(dst);
-                      var areRanksInOrder = dst.rank === (src.rank + 1 | 0);
-                      var legalMove = areCardsOppositeColors && areRanksInOrder;
-                      var check = legalMove ? Caml_obj.caml_equal(sourceCascade$1, /* :: */[
-                              undefined,
-                              /* [] */0
-                            ]) && Caml_obj.caml_equal(destCascade$1, /* :: */[
-                              dst,
-                              /* :: */[
-                                src,
-                                /* [] */0
-                              ]
-                            ]) : Caml_obj.caml_equal(sourceCascade$1, /* :: */[
-                              src,
-                              /* [] */0
-                            ]) && Caml_obj.caml_equal(destCascade$1, /* :: */[
-                              dst,
-                              /* [] */0
-                            ]);
-                      return TestLib.assertEqual(undefined, (function (b) {
-                                    return "src: " + (Formatting.string_of_optional_card_list(sourceCascade$1) + (" | dst: " + Formatting.string_of_optional_card_list(destCascade$1)));
-                                  }), true, check, "Illegal moves are not permitted");
-                    }
-                    
-                  }
-                  throw [
-                        Caml_builtin_exceptions.match_failure,
-                        /* tuple */[
-                          "Test.re",
-                          157,
-                          12
-                        ]
-                      ];
-                }));
+    var testPair = function (p) {
+      if (p) {
+        var match = p[1];
+        if (match && !match[1]) {
+          var dst = match[0];
+          var src = p[0];
+          var sourceCascade_000 = src;
+          var sourceCascade = /* :: */[
+            sourceCascade_000,
+            /* [] */0
+          ];
+          var destCascade_000 = dst;
+          var destCascade = /* :: */[
+            destCascade_000,
+            /* [] */0
+          ];
+          var match$1 = FreeCellBehavior.Command.moveCardBetweenCascades(0, 1, {
+                cards: /* array */[
+                  sourceCascade,
+                  destCascade
+                ]
+              });
+          var cards = match$1.cards;
+          var sourceCascade$1 = Caml_array.caml_array_get(cards, 0);
+          var destCascade$1 = Caml_array.caml_array_get(cards, 1);
+          var areCardsOppositeColors = FreeCellBehavior.cardColor(src) !== FreeCellBehavior.cardColor(dst);
+          var areRanksInOrder = dst.rank === (src.rank + 1 | 0);
+          var legalMove = areCardsOppositeColors && areRanksInOrder;
+          var check = legalMove ? sourceCascade$1 === /* [] */0 && Caml_obj.caml_equal(destCascade$1, /* :: */[
+                  src,
+                  /* :: */[
+                    dst,
+                    /* [] */0
+                  ]
+                ]) : Caml_obj.caml_equal(sourceCascade$1, /* :: */[
+                  src,
+                  /* [] */0
+                ]) && Caml_obj.caml_equal(destCascade$1, /* :: */[
+                  dst,
+                  /* [] */0
+                ]);
+          return TestLib.assertEqual(undefined, (function (param) {
+                        return "src: " + (Formatting.string_of_optional_card_list(sourceCascade$1) + (" | dst: " + Formatting.string_of_optional_card_list(destCascade$1)));
+                      }), true, check, "Only legal moves are performed");
+        }
+        
+      }
+      throw [
+            Caml_builtin_exceptions.match_failure,
+            /* tuple */[
+              "Test.re",
+              138,
+              10
+            ]
+          ];
+    };
+    return Belt_List.map(allPairs, testPair);
   };
   return Belt_List.concat(legalMoves(/* () */0), illegalMovesComb(/* () */0));
 }
@@ -276,6 +275,7 @@ TestLib.runSuite(suite);
 
 exports.testDealCascades = testDealCascades;
 exports.testDealtCascadesAreCorrectStructure = testDealtCascadesAreCorrectStructure;
+exports.legalMoves = legalMoves;
 exports.testMovingCardsBetweenCascades = testMovingCardsBetweenCascades;
 exports.gameSetupCases = gameSetupCases;
 exports.gameMoveCases = gameMoveCases;

@@ -7,7 +7,6 @@ var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
-var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 var cmp = Caml_obj.caml_compare;
 
@@ -181,13 +180,37 @@ function dealCascades(freeCell) {
 }
 
 function moveCardBetweenCascades(sourceIndex, destinationIndex, freeCell) {
-  var source = Caml_array.caml_array_get(freeCell.cards, sourceIndex);
-  var dest = Caml_array.caml_array_get(freeCell.cards, destinationIndex);
-  var card = Belt_List.head(Belt_List.reverse(Caml_array.caml_array_get(freeCell.cards, sourceIndex)));
-  var dest$1 = card !== undefined ? Belt_List.add(dest, Caml_option.valFromOption(card)) : dest;
-  var source$1 = Belt_Option.getExn(Belt_List.drop(source, 1));
-  Caml_array.caml_array_set(freeCell.cards, sourceIndex, source$1);
-  Caml_array.caml_array_set(freeCell.cards, destinationIndex, dest$1);
+  var validateMove = function (src, dest) {
+    if (src !== undefined) {
+      var s = src;
+      if (dest !== undefined) {
+        var d = dest;
+        if (cardColor(s) !== cardColor(d) && d.rank === (s.rank + 1 | 0)) {
+          return /* Valid */[s];
+        } else {
+          return /* Invalid */0;
+        }
+      } else {
+        return /* Valid */[s];
+      }
+    } else {
+      return /* Invalid */0;
+    }
+  };
+  var bottomCard = function (index) {
+    return Belt_Option.getExn(Belt_List.head(Belt_List.reverse(Caml_array.caml_array_get(freeCell.cards, index))));
+  };
+  var sourceCard = bottomCard(sourceIndex);
+  var destCard = bottomCard(destinationIndex);
+  var match = validateMove(sourceCard, destCard);
+  if (match) {
+    var sourceCascade = Caml_array.caml_array_get(freeCell.cards, sourceIndex);
+    var destinationCascade = Caml_array.caml_array_get(freeCell.cards, destinationIndex);
+    var newDest = Belt_List.add(destinationCascade, match[0]);
+    var newSource = Belt_Option.getExn(Belt_List.drop(sourceCascade, 1));
+    Caml_array.caml_array_set(freeCell.cards, sourceIndex, newSource);
+    Caml_array.caml_array_set(freeCell.cards, destinationIndex, newDest);
+  }
   return freeCell;
 }
 

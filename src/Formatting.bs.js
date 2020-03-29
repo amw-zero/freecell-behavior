@@ -14,9 +14,9 @@ function string_of_tuple(t) {
 }
 
 function string_of_card_list(cards) {
-  return Belt_List.map(cards, (function (c) {
-                return FreeCellBehavior.string_of_card(c);
-              }));
+  return $$String.concat(", ", Belt_List.map(cards, (function (c) {
+                    return FreeCellBehavior.string_of_card(c);
+                  })));
 }
 
 function string_of_optional_card_list(cards) {

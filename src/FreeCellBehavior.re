@@ -102,25 +102,41 @@ module Command = {
     {cards: cascades};
   };
 
+  type move =
+    | Valid(card)
+    | Invalid;
+
   let moveCardBetweenCascades = (~sourceIndex, ~destinationIndex, freeCell) => {
-    let validMove = (~src, ~dest) =>
-      cardColor(src) != cardColor(dest) && dest.rank == src.rank - 1;
-
-    let source = freeCell.cards[sourceIndex];
-    let dest = freeCell.cards[destinationIndex];
-
-    let card = Belt.List.reverse(freeCell.cards[sourceIndex])->Belt.List.head;
-
-    let dest =
-      switch (card) {
-      | Some(c) => Belt.List.add(dest, c)
-      | None => dest
+    let validateMove = (~src, ~dest) =>
+      switch (src, dest) {
+      | (Some(s), Some(d))
+          when cardColor(s) != cardColor(d) && d.rank == s.rank + 1 =>
+        Valid(s)
+      | (Some(s), None) => Valid(s)
+      | _ => Invalid
       };
 
-    let source = Belt.List.drop(source, 1) |> Belt.Option.getExn;
+    let bottomCard = (~atIndex as index) =>
+      Belt.List.reverse(freeCell.cards[index])
+      ->Belt.List.head
+      ->Belt.Option.getExn;
 
-    freeCell.cards[sourceIndex] = source;
-    freeCell.cards[destinationIndex] = dest;
+    let sourceCard = bottomCard(~atIndex=sourceIndex);
+    let destCard = bottomCard(~atIndex=destinationIndex);
+
+
+    switch (validateMove(~src=sourceCard, ~dest=destCard)) {
+    | Valid(s) =>
+      let sourceCascade = freeCell.cards[sourceIndex];
+      let destinationCascade = freeCell.cards[destinationIndex];
+
+      let newDest = Belt.List.add(destinationCascade, Some(s));
+      let newSource = Belt.List.drop(sourceCascade, 1) |> Belt.Option.getExn;
+
+      freeCell.cards[sourceIndex] = newSource;
+      freeCell.cards[destinationIndex] = newDest;
+    | Invalid => ()
+    };
 
     freeCell;
   };
