@@ -26,7 +26,7 @@ let testDealCascades = () => {
       Belt.Map.merge(groupCardList(cardList), cardsBySuit, mergeCardsBySuit)
     );
 
-  let freeCell = Command.dealCascades(emptyFreeCell);
+  let freeCell = Command.dealCascades(());
 
   let cardsBySuit = groupCardsBySuit(freeCell.cards);
   let cardsPerSuit =

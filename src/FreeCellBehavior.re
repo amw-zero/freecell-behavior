@@ -69,7 +69,7 @@ module Command = {
     taken: int,
   };
 
-  let dealCascades = freeCell => {
+  let dealCascades = (~shuffler=?, _) => {
     let generateCards = () => {
       let allPairs = (e, l2) => Belt.List.map(l2, le => (e, le));
       let generateCombinations = (s1, s2) =>
@@ -77,8 +77,13 @@ module Command = {
           List.concat([a, allPairs(e, s2)])
         );
 
-      generateCombinations(allSuits, allRanks)
+      let allCards = generateCombinations(allSuits, allRanks)
       ->Belt.List.map(c => {suit: fst(c), rank: snd(c)});
+
+      switch (shuffler) {
+        | Some(s) => s(allCards)
+        | None => allCards
+      };
     };
 
     let cascadesFrom = cards => {
