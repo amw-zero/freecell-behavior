@@ -83,14 +83,16 @@ let _runSuite = suite => {
   };
 };
 
-let runSuite = suite => {
+let runSuite = (suite) => {
   let {failingTests, assertionCount} = _runSuite(suite);
+//  let logger = _ => ();
+  let logger = Js.log;
   switch (List.length(failingTests)) {
-  | 0 => Js.log("All tests passed.")
+  | 0 => logger("All tests passed.")
   | _ =>
-    Js.log("Failing tests:\n");
+    logger("Failing tests:\n");
     Belt.List.forEach(failingTests, printAssertion);
   };
 
-  Js.log("Ran " ++ string_of_int(assertionCount) ++ " assertions.");
+  logger("Ran " ++ string_of_int(assertionCount) ++ " assertions.");
 };

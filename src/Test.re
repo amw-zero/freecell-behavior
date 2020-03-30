@@ -23,11 +23,7 @@ let testDealCascades = () => {
 
   let groupCardsBySuit = cards =>
     Belt.Array.reduce(cards, suitMap(), (cardsBySuit, cardList) =>
-      Belt.Map.merge(
-        groupCardList(cardList),
-        cardsBySuit,
-        mergeCardsBySuit,
-      )
+      Belt.Map.merge(groupCardList(cardList), cardsBySuit, mergeCardsBySuit)
     );
 
   let freeCell = Command.dealCascades(emptyFreeCell);
@@ -145,7 +141,7 @@ let testMovingCardsBetweenCascades = () => {
         );
 
       let sourceCascade = cards[0];
-      let destCascade = cards[1]; 
+      let destCascade = cards[1];
 
       let areCardsOppositeColors = cardColor(src) != cardColor(dst);
       let areRanksInOrder = dst.rank == src.rank + 1;
@@ -164,9 +160,9 @@ let testMovingCardsBetweenCascades = () => {
         ~printer=
           _ =>
             "src: "
-            ++ Formatting.string_of_card_list(sourceCascade)
+            ++ string_of_card_list(sourceCascade)
             ++ " | dst: "
-            ++ Formatting.string_of_card_list(destCascade),
+            ++ string_of_card_list(destCascade),
         "Only legal moves are performed",
       );
     };
@@ -177,10 +173,49 @@ let testMovingCardsBetweenCascades = () => {
   Belt.List.concat(legalMoves(), illegalMovesComb());
 };
 
+// cascades
+// list(list(card));
+// vals:
+// card = 52
+// list = 0..52, 2^52
+// list(list(card)) = 2^52 possibilities
+
+let testCascadeDisplayPreparation = () => {
+  let aceOfHearts = {suit: Hearts, rank: 1};
+  let twoOfHearts = {suit: Hearts, rank: 2};
+  let threeOfHearts = {suit: Hearts, rank: 3};
+  let fourOfHearts = {suit: Hearts, rank: 4};
+  let fiveOfHearts = {suit: Hearts, rank: 5};
+
+  let cascades = [|
+    [aceOfHearts, twoOfHearts],
+    [threeOfHearts, fourOfHearts],
+    [fiveOfHearts],
+  |];
+
+  let displayCascades = Accidental.cascadesForDisplay(cascades);
+
+  [
+    assertEqual(
+      ~expected=[|
+        [Some(aceOfHearts), Some(threeOfHearts), Some(fiveOfHearts)],
+        [Some(twoOfHearts), Some(fourOfHearts), None],
+      |],
+      ~actual=displayCascades,
+      "The card matrix is transposed and None values are inserted to pad lists until they are all of the same length for display purposes",
+    ),
+  ];
+};
+
 let gameSetupCases = [testDealCascades, testDealtCascadesAreCorrectStructure];
 
 let gameMoveCases = [testMovingCardsBetweenCascades];
 
-let suite = Belt.List.concat(gameSetupCases, gameMoveCases);
+let suite =
+  Belt.List.flatten([
+    gameSetupCases,
+    gameMoveCases,
+    [testCascadeDisplayPreparation],
+  ]);
 
 runSuite(suite);

@@ -41,6 +41,21 @@ let string_of_suit = suit =>
 let string_of_card = card =>
   string_of_int(card.rank) ++ string_of_suit(card.suit);
 
+let string_of_card_list = cards =>
+  Belt.List.map(cards, c => string_of_card(c))
+  |> String.concat(", ");
+
+let string_of_optional_card_list = cards =>
+  Belt.List.map(
+    cards, 
+    c => 
+      switch(c) {
+      | Some(c) => string_of_card(c)
+      | None => "empty"
+      }
+  )
+  |> String.concat(", ");
+
 type cardList = list(card);
 type cardMatrix = array(cardList);
 
@@ -114,8 +129,7 @@ module Command = {
       };
 
     let bottomCard = (~atIndex as index) =>
-      Belt.List.reverse(freeCell.cards[index])
-      ->Belt.List.head;
+      Belt.List.reverse(freeCell.cards[index])->Belt.List.head;
 
     let sourceCard = bottomCard(~atIndex=sourceIndex);
     let destCard = bottomCard(~atIndex=destinationIndex);
@@ -134,5 +148,47 @@ module Command = {
     };
 
     freeCell;
+  };
+};
+
+module Accidental = {
+  let cascadesForDisplay = cascades => {
+    let normalize =
+      cascades => {
+        let cascades = Belt.List.fromArray(cascades);
+        let maxLength =
+          Belt.List.reduce(
+            cascades,
+            0,
+            (a, cascade) => {
+              let length = Belt.List.length(cascade);
+              length > a ? length : a;
+            },
+          );
+
+        Belt.List.map(
+          cascades,
+          cascade => {
+            let lengthDiff = maxLength - Belt.List.length(cascade);
+            if (lengthDiff == 0) {
+              Belt.List.map(cascade, card => Some(card));
+            } else {
+              Belt.List.map(cascade, card => Some(card))
+              @ Belt.List.makeBy(lengthDiff, _ => None);
+            };
+          },
+        );
+      };
+
+    let rec transpose =
+      ll => {
+        switch (ll) {
+        | [[], ..._] => []
+        | lists =>
+          Belt.List.[lists->map(headExn), ...lists->map(tailExn)->transpose]
+        };
+      };
+
+    normalize(cascades)->transpose->Belt.List.toArray;
   };
 };

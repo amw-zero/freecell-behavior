@@ -1,3 +1,8 @@
+// n >= 1
+// let s = [e1, e2, ... en]
+// permutations(s, 1) = [[e1], [e2], ... [en]]
+// permutations(s, 2) =  [[e1, e1], [e1, e2], ... [e1, en]]
+// permutations(s, 2) = for each e in s, append e to each p in permutations(s, n - 1)
 let rec permutations = (s, n) =>
   switch (n) {
   | 1 => Belt.List.map(s, e => [e])
